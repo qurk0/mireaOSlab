@@ -1,8 +1,9 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
 #include <dirent.h>
@@ -39,10 +40,16 @@ void printFileColor(const char* path, const struct stat *fileStat)
 
 void printFileInfo(const char *name, const char *path, const struct stat *fileStat)
 {
-    char modes[11] = "----------";
     struct passwd *pw = getpwuid(fileStat->st_uid);
     struct group *gr = getgrgid(fileStat->st_gid);
+    
+    char linkbuff[1024];
+    char pid[32], gid[32];
     char timebuf[80];
+    char modes[11] = "----------";
+
+    snprintf(pid, sizeof(pid), "%u", pw->pw_uid);
+    snprintf(gid, sizeof(gid), "%u", gr->gr_gid);
 
     modes[0] = S_ISDIR(fileStat->st_mode) ? 'd' :
               S_ISLNK(fileStat->st_mode) ? 'l' : '-';
@@ -57,9 +64,20 @@ void printFileInfo(const char *name, const char *path, const struct stat *fileSt
     modes[9] = (fileStat->st_mode & S_IXOTH) ? 'x' : '-';
 
     strftime(timebuf, sizeof(timebuf), "%b %d %H:%M", localtime(&fileStat->st_mtime));
-    printf("%s %lu %s %s %5ld %s", modes, fileStat->st_nlink, pw->pw_name, gr->gr_name, fileStat->st_size, timebuf);
+    printf("%s %5lu %s %s %10ld %s", modes, fileStat->st_nlink, 
+                            (pw) ? pw->pw_name : pid, 
+                            (gr) ? gr->gr_name : gid,
+                            fileStat->st_size, timebuf);
     printFileColor(path, fileStat);
-    printf(" %s\n", name);
+    printf(" %s", name);
+
+    if(modes[0] == 'l') 
+    { 
+        readlink(path, linkbuff, sizeof(linkbuff - 1));
+        printf(" -> %s", linkbuff); 
+    }
+
+    printf("\n");
     printf(RESET_COLOR);
 }
 
