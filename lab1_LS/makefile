@@ -1,13 +1,10 @@
-all: run
+all: myLs
 
 run: myLs
 	./myLs
 
-myLs: main.o
-	gcc main.o -o myLs
-
-main.o: main.c
-	gcc -c main.c
+myLs: main.c
+	gcc main.c -o myLs
 
 clean:
 	rm -rf *.o myLs

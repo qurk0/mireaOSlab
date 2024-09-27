@@ -158,7 +158,7 @@ int main(int argc, char** argv)
     // Наша опция
     char c;
 
-    while((c = getopt(argc, argv, "l::a::")) != -1) {
+    while((c = getopt(argc, argv, "la")) != -1) {
         switch(c) {
             case 'l':
                 flags += 1;
@@ -172,7 +172,21 @@ int main(int argc, char** argv)
         }
     }
 
-    char* path = (optarg != NULL) ? optarg : "."; 
+    char* path;
+
+    // Считали флаги, если аргументов больше нет, myLs работает в папке с исполняемым файлом
+    if(optind == argc) { path = "."; }
+
+    // Иначе записываем путь в path
+    else {
+        for (int i = optind; i < argc; i++) {
+            printf("%s\n", argv[i]);
+            path = argv[i];
+
+            if(i < argc - 1) { printf("\n"); }
+        } 
+    }
+
     print_ls(path, flags);
     return 0;
 }
