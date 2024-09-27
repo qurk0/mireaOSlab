@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pwd.h>
@@ -13,10 +12,12 @@
 #include <errno.h>
 #include <getopt.h>
 
+
 #define RESET_COLOR "\033[0m"
 #define BLUE_COLOR "\033[34m"
 #define GREEN_COLOR "\033[32m"
 #define CYAN_COLOR "\033[36m"
+
 
 int compare_alphabetically(const struct dirent **a, const struct dirent **b) {
     return strcmp((*a)->d_name, (*b)->d_name);
@@ -196,14 +197,7 @@ int main(int argc, char** argv)
     if(optind == argc) { path = "."; }
 
     // Иначе записываем путь в path
-    else {
-        for (int i = optind; i < argc; i++) {
-            printf("%s\n", argv[i]);
-            path = argv[i];
-
-            if(i < argc - 1) { printf("\n"); }
-        } 
-    }
+    else { path = argv[optind]; }
 
     print_ls(path, flags);
     return 0;
